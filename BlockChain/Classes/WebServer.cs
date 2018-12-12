@@ -1,7 +1,7 @@
 ﻿using BlockChain.Models;
 
 using Newtonsoft.Json;
-
+using System;
 using System.Configuration;
 using System.IO;
 using System.Net;
@@ -33,6 +33,7 @@ namespace BlockChain.Classes
 					{
 						//GET: http://localhost:12345/mine
 						case "/mine":
+							Console.WriteLine("Mine");
 							return chain.Mine();
 
 						//POST: http://localhost:12345/transactions/new
@@ -44,10 +45,12 @@ namespace BlockChain.Classes
 							json = new StreamReader(request.InputStream).ReadToEnd();
 							Transaction trx = JsonConvert.DeserializeObject<Transaction>(json);
 							int blockId = chain.CreateTransaction(trx.Sender, trx.Recipient, trx.Amount);
+							Console.WriteLine(trx.ToString());
 							return $"Ваша транзакция будет включена в блок {blockId}";
 
 						//GET: http://localhost:12345/chain
 						case "/chain":
+							Console.WriteLine("GetFullChain");
 							return chain.GetFullChain();
 
 						//POST: http://localhost:12345/nodes/register
