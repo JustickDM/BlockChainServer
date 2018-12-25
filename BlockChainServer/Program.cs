@@ -1,4 +1,4 @@
-﻿using bc = BlockChain.Classes;
+﻿using BlockChain.Classes;
 using System;
 
 namespace BlockChainServer
@@ -7,8 +7,8 @@ namespace BlockChainServer
 	{
 		static void Main(string[] args)
 		{
-			var chain = new bc.BlockChain();
-			var server = new bc.WebServer(chain);
+			var chain = new BlockChainMethods();
+			var server = new WebServer(chain);
 			Console.Read();
 		}
 	}

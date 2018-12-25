@@ -2,6 +2,9 @@
 
 using Newtonsoft.Json;
 
+using Repository.SQLite;
+using rep = Repository.Entities;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +16,7 @@ using System.Text;
 
 namespace BlockChain.Classes
 {
-	public class BlockChain
+	public class BlockChainMethods
 	{
 		private List<Transaction> _currentTransactions = new List<Transaction>();
 		private List<Block> _chain = new List<Block>();
@@ -22,7 +25,7 @@ namespace BlockChain.Classes
 
 		public string NodeId { get; private set; }
 
-		public BlockChain()
+		public BlockChainMethods()
 		{
 			NodeId = Guid.NewGuid().ToString().Replace("-", "");
 			CreateNewBlock(proof: 100, previousHash: "1"); //genesis block
@@ -103,7 +106,7 @@ namespace BlockChain.Classes
 			var block = new Block
 			{
 				Index = _chain.Count,
-				Timestamp = DateTime.UtcNow,
+				Timestamp = DateTime.Now,
 				Transactions = _currentTransactions.ToList(),
 				Proof = proof,
 				PreviousHash = previousHash ?? GetHash(_chain.Last())
@@ -111,6 +114,34 @@ namespace BlockChain.Classes
 
 			_currentTransactions.Clear();
 			_chain.Add(block);
+
+			var sqliteRepository = new SQLiteRepository();
+			var maxBlock = sqliteRepository.Blocks.GetLastBlock().Result;
+			var transactionList = new List<rep.Transaction>();
+
+			foreach(var transaction in block.Transactions)
+			{
+				transactionList.Add(new rep.Transaction()
+				{
+					Sender = transaction.Sender,
+					Recipient = transaction.Recipient,
+					Amount = transaction.Amount,
+					Name = transaction.Name,
+					BlockId = maxBlock.BlockId
+				});
+			}
+
+			var newBlock = new rep.Block()
+			{
+				BlockId = block.Index,
+				Timestamp = block.Timestamp,
+				Transactions = transactionList,
+				Proof = block.Proof,
+				PreviousHash = block.PreviousHash
+			};
+
+			sqliteRepository.Blocks.AddAsync(newBlock);
+
 			return block;
 		}
 
@@ -155,13 +186,14 @@ namespace BlockChain.Classes
 		{
 			int proof = CreateProofOfWork(_lastBlock.Proof, _lastBlock.PreviousHash);
 
-			CreateTransaction(sender: "0", recipient: NodeId, amount: 1);
+			CreateTransaction(sender: "0", recipient: NodeId, amount: 1, name: null);
 			Block block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
 
 			var response = new
 			{
 				Message = "New Block Forged",
 				Index = block.Index,
+				Timestamp = DateTime.Now,
 				Transactions = block.Transactions.ToArray(),
 				Proof = block.Proof,
 				PreviousHash = block.PreviousHash
@@ -210,12 +242,13 @@ namespace BlockChain.Classes
 			return JsonConvert.SerializeObject(response);
 		}
 
-		internal int CreateTransaction(string sender, string recipient, int amount)
+		internal int CreateTransaction(string sender, string recipient, int amount, string name)
 		{
 			var transaction = new Transaction
 			{
 				Sender = sender,
 				Recipient = recipient,
+				Name = name,
 				Amount = amount
 			};
 

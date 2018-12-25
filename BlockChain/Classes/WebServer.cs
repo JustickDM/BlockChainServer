@@ -11,7 +11,7 @@ namespace BlockChain.Classes
 {
 	public class WebServer
 	{
-		public WebServer(BlockChain chain)
+		public WebServer(BlockChainMethods chain)
 		{
 			var settings = ConfigurationManager.AppSettings;
 			string host = settings["host"]?.Length > 1 ? settings["host"] : "localhost";
@@ -44,7 +44,7 @@ namespace BlockChain.Classes
 
 							json = new StreamReader(request.InputStream).ReadToEnd();
 							Transaction trx = JsonConvert.DeserializeObject<Transaction>(json);
-							int blockId = chain.CreateTransaction(trx.Sender, trx.Recipient, trx.Amount);
+							int blockId = chain.CreateTransaction(trx.Sender, trx.Recipient, trx.Amount, trx.Name);
 							Console.WriteLine(trx.ToString());
 							return $"Ваша транзакция будет включена в блок {blockId}";
 
