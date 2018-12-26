@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Repository.Entities;
+using BlockChainDataBase.Entities;
 
-namespace Repository.Context
+namespace BlockChainDataBase.Context
 {
 	internal class RepositoryContext: DbContext
 	{

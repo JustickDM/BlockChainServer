@@ -155,6 +155,7 @@
   <ItemGroup>
     <Compile Include="Classes\BlockChainMethods.cs" />
     <Compile Include="Classes\WebServer.cs" />
+    <Compile Include="Converters\BlockChainConverter.cs" />
     <Compile Include="Models\Block.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Transaction.cs" />

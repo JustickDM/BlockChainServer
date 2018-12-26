@@ -1,4 +1,4 @@
-﻿namespace Repository.Entities
+﻿namespace BlockChainDataBase.Entities
 {
 	public class Transaction
 	{

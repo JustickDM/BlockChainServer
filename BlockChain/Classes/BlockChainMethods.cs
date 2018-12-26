@@ -1,9 +1,9 @@
 ﻿using BlockChain.Models;
+using BlockChain.Converters;
 
 using Newtonsoft.Json;
 
-using Repository.SQLite;
-using rep = Repository.Entities;
+using BlockChainDataBase.SQLite;
 
 using System;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BlockChain.Classes
 {
@@ -23,12 +24,29 @@ namespace BlockChain.Classes
 		private List<Node> _nodes = new List<Node>();
 		private Block _lastBlock => _chain.Last();
 
+		private BlockChainConverter blockChainConverter = new BlockChainConverter();
+
 		public string NodeId { get; private set; }
 
 		public BlockChainMethods()
 		{
 			NodeId = Guid.NewGuid().ToString().Replace("-", "");
-			CreateNewBlock(proof: 100, previousHash: "1"); //genesis block
+
+			GetChainFromDB();
+		}
+
+		private async void GetChainFromDB()
+		{
+			var sqliteRepository = new SQLiteRepository();
+			var chainDB = await sqliteRepository.Blocks.GetEntityListAsync();
+			if(chainDB != null)
+			{
+				_chain.AddRange(blockChainConverter.Convert(chainDB));
+			}
+			else
+			{
+				await CreateNewBlock(proof: 100, previousHash: "1");
+			}
 		}
 
 		private void RegisterNode(string address)
@@ -101,11 +119,11 @@ namespace BlockChain.Classes
 			return false;
 		}
 
-		private Block CreateNewBlock(int proof, string previousHash = null)
+		private async Task<Block> CreateNewBlock(int proof, string previousHash = null)
 		{
 			var block = new Block
 			{
-				Index = _chain.Count,
+				BlockId = _chain.Count,
 				Timestamp = DateTime.Now,
 				Transactions = _currentTransactions.ToList(),
 				Proof = proof,
@@ -116,31 +134,8 @@ namespace BlockChain.Classes
 			_chain.Add(block);
 
 			var sqliteRepository = new SQLiteRepository();
-			var maxBlock = sqliteRepository.Blocks.GetLastBlock().Result;
-			var transactionList = new List<rep.Transaction>();
 
-			foreach(var transaction in block.Transactions)
-			{
-				transactionList.Add(new rep.Transaction()
-				{
-					Sender = transaction.Sender,
-					Recipient = transaction.Recipient,
-					Amount = transaction.Amount,
-					Name = transaction.Name,
-					BlockId = maxBlock.BlockId
-				});
-			}
-
-			var newBlock = new rep.Block()
-			{
-				BlockId = block.Index,
-				Timestamp = block.Timestamp,
-				Transactions = transactionList,
-				Proof = block.Proof,
-				PreviousHash = block.PreviousHash
-			};
-
-			sqliteRepository.Blocks.AddAsync(newBlock);
+			await sqliteRepository.Blocks.AddAsync(await blockChainConverter.Convert(block));
 
 			return block;
 		}
@@ -182,17 +177,17 @@ namespace BlockChain.Classes
 		}
 
 		//web server calls
-		internal string Mine()
+		internal async Task<string> Mine()
 		{
 			int proof = CreateProofOfWork(_lastBlock.Proof, _lastBlock.PreviousHash);
 
 			CreateTransaction(sender: "0", recipient: NodeId, amount: 1, name: null);
-			Block block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
+			Block block = await CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
 
 			var response = new
 			{
 				Message = "New Block Forged",
-				Index = block.Index,
+				Index = block.BlockId,
 				Timestamp = DateTime.Now,
 				Transactions = block.Transactions.ToArray(),
 				Proof = block.Proof,
@@ -254,7 +249,7 @@ namespace BlockChain.Classes
 
 			_currentTransactions.Add(transaction);
 
-			return _lastBlock != null ? _lastBlock.Index + 1 : 0;
+			return _lastBlock != null ? _lastBlock.BlockId + 1 : 0;
 		}
 	}
 }

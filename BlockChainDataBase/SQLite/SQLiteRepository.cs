@@ -1,6 +1,6 @@
-﻿using Repository.SQLite.Repositories;
+﻿using BlockChainDataBase.SQLite.Repositories;
 
-namespace Repository.SQLite
+namespace BlockChainDataBase.SQLite
 {
 	public class SQLiteRepository
 	{

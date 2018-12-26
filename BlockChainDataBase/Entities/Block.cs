@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Repository.Entities
+namespace BlockChainDataBase.Entities
 {
 	public class Block
 	{

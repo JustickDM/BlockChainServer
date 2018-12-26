@@ -6,6 +6,7 @@
 		public int Amount { get; set; }
 		public string Recipient { get; set; }
 		public string Sender { get; set; }
+		public int BlockId { get; set; }
 
 		public override string ToString()
 		{

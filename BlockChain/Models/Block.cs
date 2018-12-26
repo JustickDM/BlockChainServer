@@ -5,7 +5,7 @@ namespace BlockChain.Models
 {
 	public class Block
 	{
-		public int Index { get; set; }
+		public int BlockId { get; set; }
 		public DateTime Timestamp { get; set; }
 		public List<Transaction> Transactions { get; set; }
 		public int Proof { get; set; }
@@ -13,7 +13,7 @@ namespace BlockChain.Models
 
 		public override string ToString()
 		{
-			return $"{Index} [{Timestamp.ToString("yyyy-MM-dd HH:mm:ss")}] Proof: {Proof} | PrevHash: {PreviousHash} | Trx: {Transactions.Count}";
+			return $"{BlockId} [{Timestamp.ToString("yyyy-MM-dd HH:mm:ss")}] Proof: {Proof} | PrevHash: {PreviousHash} | Trx: {Transactions.Count}";
 		}
 	}
 }

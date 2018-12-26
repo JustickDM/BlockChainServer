@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Repository.Interfaces
+namespace BlockChainDataBase.Interfaces
 {
 	public interface IRepository<T> : IDisposable
 		where T : class

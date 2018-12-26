@@ -1,13 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BlockChainDataBase.Context;
+using BlockChainDataBase.Entities;
 
-using Repository.Context;
-using Repository.Entities;
+using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Repository.SQLite.Repositories
+namespace BlockChainDataBase.SQLite.Repositories
 {
 	public class TransactionRepository
 	{

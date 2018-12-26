@@ -34,7 +34,7 @@ namespace BlockChain.Classes
 						//GET: http://localhost:12345/mine
 						case "/mine":
 							Console.WriteLine("Mine");
-							return chain.Mine();
+							return chain.Mine().Result;
 
 						//POST: http://localhost:12345/transactions/new
 						//{ "Amount":123, "Recipient":"ebeabf5cc1d54abdbca5a8fe9493b479", "Sender":"31de2e0ef1cb4937830fcfd5d2b3b24f" }
